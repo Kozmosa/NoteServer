@@ -1,0 +1,136 @@
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Note Server</title>
+    <link rel="stylesheet" href="./src/mdui/css/mdui.min.css">
+    <link rel="stylesheet" href="./src/utils.css">
+
+
+    <!-- Drawer -->
+    <div class="mdui-drawer" id="left-drawer">
+        <div class="mdui-list" mdui-collapse="{accordion: true}" style="margin-bottom: 76px;">
+            <div class="mdui-collapse-item ">
+                <div class="mdui-collapse-item-header mdui-list-item mdui-ripple">
+                    <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-green">widgets</i>
+                    <div class="mdui-list-item-content">功能</div>
+                    <i class="mdui-collapse-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+                </div>
+                <div class="mdui-collapse-item-body mdui-list">
+                    <a href="javascript:;" class="mdui-list-item mdui-ripple ">查看笔记</a>
+                    <a href="javascript:;" class="mdui-list-item mdui-ripple ">编辑笔记</a>
+                </div>
+            </div>
+
+            <div class="mdui-collapse-item ">
+                <div class="mdui-collapse-item-header mdui-list-item mdui-ripple">
+                    <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-brown">view_carousel</i>
+                    <div class="mdui-list-item-content">笔记库</div>
+                    <i class="mdui-collapse-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+                </div>
+                <div class="mdui-collapse-item-body mdui-list" id="librariesWrapper">
+                </div>
+            </div>
+        </div>
+    </div>
+</head>
+<body class="mdui-theme-primary-indigo mdui-drawer-body-left">
+
+    <div class="mdui-toolbar mdui-color-theme">
+        <a href="javascript:;" class="mdui-btn mdui-btn-icon" id="menuBtn"><i class="mdui-icon material-icons">menu</i></a>
+        <span class="mdui-typo-title">Note Server</span>
+        <div class="mdui-toolbar-spacer"></div>
+        <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">refresh</i></a>
+        <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">more_vert</i></a>
+    </div>
+
+    <div class="mdui-container" id="view-container">
+        <div class="mdui-row">
+            <div class="mdui-col-lg-12">
+                <div class="flex-center">
+                    <h1 class="title1">欢迎使用</h1>
+                </div>
+            </div>
+        </div>
+        <div class="mdui-row">
+            <div class="mdui-col-lg-12">
+                <div class="flex-center">
+                    <a class="mdui-btn mdui-ripple mdui-color-theme"
+                        id="startBtn">点击按钮开始舒适笔记之旅</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="./src/utils.js"></script>
+    <script src="./src/mdui/js/mdui.min.js" id="mduiJS"></script>
+    <script>
+        const utils = window.Utils
+        function ViewLibrary(libraryIdentify) {
+            // Log
+            console.log(`Library ID: ${libraryIdentify}`)
+            let viewContainer = document.querySelector('#view-container')
+            viewContainer.innerHTML = `<h1 class='mdui-typo'>Articles</h1><ul class="mdui-list" id="note-list"></ul>`
+            let noteList = document.querySelector('#note-list')
+
+            const queryUrl = `/api/note/status?libraryID=${libraryIdentify}`
+            utils.Network.GetJson(queryUrl, (result) => {
+                console.log(result)
+                const libraryNotes = result.status.details
+                if(libraryNotes.length === 0) {
+                    noteList.innerHTML = `<h1>本笔记库暂时还没有笔记</h1>`
+                }
+                for(let i = 0; i < libraryNotes.length; i++) { 
+                    let noteEl = document.createElement('li')
+                    noteEl.className = 'mdui-list-item mdui-ripple'
+                    noteEl.href = 'javascript:;'
+                    noteEl.innerText = libraryNotes[i].title
+                    noteEl.setAttribute('data-note-id', libraryNotes[i].id)
+                    // Add Event
+                    noteEl.addEventListener('click', (e) => {
+                        ViewNote(libraryIdentify, libraryNotes[i].id)
+                    })
+                    noteList.appendChild(noteEl)
+                }
+            })
+            window.inst.toggle()
+        }
+
+        function ViewNote(libraryIdentify, noteIdentify) {
+            // Log
+            console.log(`Note ID: ${noteIdentify}`)
+            window.location.href = `/view?noteID=${noteIdentify}&libraryID=${libraryIdentify}`
+        }
+        window.onload = function() {
+            let librariesWrapper = document.querySelector('#librariesWrapper')
+            const queryUrl = `/api/library/status`
+            utils.Network.GetJson(queryUrl, (result) => {
+                console.log(result)
+                for (let i = 0; i < result.total; i++) {
+                    let el = document.createElement('a')
+                    el.className = 'mdui-list-item mdui-ripple mdui-btn'
+                    el.href = 'javascript:;'
+                    el.setAttribute('data-library-id', i.toString())
+                    el.innerText = result.details[i].name
+                    el.addEventListener('click', function(e) {
+                        ViewLibrary(this.getAttribute('data-library-id'))
+                    })
+                    librariesWrapper.appendChild(el)
+                }
+            })
+            
+            console.log('Load complete.')
+
+            // Add events
+            window.inst = new mdui.Drawer('#left-drawer')
+            document.querySelector('#menuBtn').addEventListener('click', (e) => {
+                window.inst.toggle()
+            })
+
+            document.querySelector('#startBtn').addEventListener('click', (e) => {
+                window.inst.open()
+            })
+        }
+    </script>
+</body>
+</html>

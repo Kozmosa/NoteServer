@@ -1,0 +1,19 @@
+
+@hostname=127.0.0.1
+@port=8081
+@host={{hostname}}:{{port}}
+
+GET http://{{host}}/api/library/status
+
+###
+
+GET http://{{host}}/api/library/create?name=wdnmd
+
+###
+GET http://{{host}}/api/note/status?libraryID=0
+
+###
+GET http://{{host}}/api/note/create?libraryID=0&title=Mike&content=#Mikeis
+
+###
+GET http://{{host}}/api/note/content?libraryID=0&noteID=0

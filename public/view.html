@@ -1,0 +1,71 @@
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Note Server</title>
+    <link rel="stylesheet" href="./src/mdui/css/mdui.min.css">
+    <style>
+        section {
+            text-indent: 2rem;
+        }
+    </style>
+    <!-- Drawer -->
+    <div class="mdui-drawer" id="left-drawer">
+        <div class="mdui-list" mdui-collapse="{accordion: true}" style="margin-bottom: 76px;">
+            <div class="mdui-collapse-item ">
+                <div class="mdui-collapse-item-header mdui-list-item mdui-ripple">
+                    <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-green">widgets</i>
+                    <div class="mdui-list-item-content">功能</div>
+                    <i class="mdui-collapse-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+                </div>
+                <div class="mdui-collapse-item-body mdui-list">
+                    <a href="javascript:;" class="mdui-list-item mdui-ripple ">查看笔记</a>
+                    <a href="javascript:;" class="mdui-list-item mdui-ripple ">编辑笔记</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</head>
+
+<body class="mdui-theme-primary-indigo">
+    <div class="mdui-toolbar mdui-color-theme">
+        <a href="javascript:;" class="mdui-btn mdui-btn-icon" mdui-drawer="{target: '#left-drawer'}"><i
+                class="mdui-icon material-icons">menu</i></a>
+        <span class="mdui-typo-title">View - Note Server</span>
+        <div class="mdui-toolbar-spacer"></div>
+        <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">refresh</i></a>
+        <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">more_vert</i></a>
+    </div>
+
+    <div class="mdui-container">
+        <div class="mdui-typo" id="viewer">
+            <h1 id="title"></h1>
+            <article></article>
+        </div>
+    </div>
+    <script src="./src/utils.js"></script>
+    <script src="./src/mdui/js/mdui.min.js"></script>
+    <script>
+        const utils = window.Utils
+        let viewer = document.querySelector('#viewer')
+        const libraryID = utils.URL.GetParam('libraryID')
+        const noteID = utils.URL.GetParam('noteID')
+        const url = `/api/note/content?libraryID=${libraryID}&noteID=${noteID}`
+        utils.Network.GetJson(url, (result) => {
+            const title = result.content.title
+            const contents = result.content.content.split('/n/')
+            document.querySelector('title').innerText = title + ' - Note Server'
+            document.querySelector('#title').innerText = title
+            for (let i = 0; i < contents.length; i++) {
+                let section = document.createElement('section')
+                section.innerHTML = contents[i]
+                document.querySelector('article').appendChild(section)
+            }
+            console.log('Load complete.')
+        })
+    </script>
+</body>
+
+</html>

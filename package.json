@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "express": "^4.17.1",
+    "showdown": "^1.9.0"
+  }
+}

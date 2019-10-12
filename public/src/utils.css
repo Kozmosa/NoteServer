@@ -1,0 +1,15 @@
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.title1 {
+    font-size: 3rem;
+    font-weight: 200;
+}
+
+.title2 {
+    font-size: 2rem;
+    font-weight: 200;
+}
